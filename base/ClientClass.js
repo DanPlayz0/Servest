@@ -17,10 +17,12 @@ class DiscordBot extends Client {
     this.events = new Collection();
     this.cooldowns = new Collection();
     
-    this.color = '#dfbbed'
+    this.color = {
+      primary: '#dfbbed'
+    }
     
     // Debug option
-    this.DEBUG = true;
+    this.DEBUG = false;
     
     // Load Commands/Events
     this.loadCommands('./commands');

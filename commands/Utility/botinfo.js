@@ -3,7 +3,7 @@ const moment = require("moment");
 require("moment-duration-format");
 const { version } = require('discord.js');
 
-class BotInfo extends Command {
+module.exports = class BotInfo extends Command {
   constructor (client) {
     super(client, {
       name: "botinfo",
@@ -41,8 +41,6 @@ class BotInfo extends Command {
       .addField('Discord.js Version', `v${version}`, true)
       .setTimestamp()
       .setFooter(message.author.username, message.author.avatarURL());
-    message.channel.send(e);
+    message.channel.send({embeds: [e]});
   }
 }
-
-module.exports = BotInfo;

@@ -1,7 +1,7 @@
 const Command = require("@base/Command.js");
 
-class Reboot extends Command {
-  constructor (client) {
+module.exports = class Reboot extends Command {
+  constructor(client) {
     super(client, {
       name: "reboot",
       description: "If running under PM2, bot will restart.",
@@ -13,8 +13,8 @@ class Reboot extends Command {
     });
   }
 
-  async run (ctx) { // eslint-disable-line no-unused-vars
-    if(ctx.args.length >= 1 && ctx.args[0].toLowerCase() == 'git') {
+  async run(ctx) { // eslint-disable-line no-unused-vars
+    if (ctx.args.length >= 1 && ctx.args[0].toLowerCase() == 'git') {
       await require('child_process').execSync('git reset --hard HEAD');
       ctx.args = ['git', 'pull']
       await ctx.client.commands.get('execute').run(ctx)
@@ -30,5 +30,3 @@ class Reboot extends Command {
     }
   }
 }
-
-module.exports = Reboot;

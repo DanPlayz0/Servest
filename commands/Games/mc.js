@@ -9,13 +9,16 @@ module.exports = class Minecraft extends Command {
       description: "Gets data about a minecraft server.",
       category: "Games",
       usage: "",
-      aliases: ['mc']
+      aliases: ['mc', 'mcip']
     });
   }
 
   async run (ctx) { // eslint-disable-line no-unused-vars
+    const guildData = (await ctx.database.guilds.get({ guildid: ctx.guildid })).minecraft;
+    if(guildData.length == 0) return ctx.failEmbed("Setup Required", `Please ask an administator to setup this command. Using \`${ctx.prefix}config ${this.help.name} IP:PORT\``);
+    if(isNaN(ctx.args[0]) || Number(ctx.args[0]) > 20 || Number(ctx.args[0]) < 1) return ctx.failEmbed("Setup Required", `Please ask an administator to setup this command. Using \`${ctx.prefix}config ${this.help.name} IP:PORT\``);
+
     let host = ctx.args[0], port = ctx.args[1];
-    if (!host) return ctx.failEmbed("Setup Required", `Please ask an administator to setup this command. Using \`${ctx.prefix}config ${this.help.name} IP:PORT\``)
     if (![validIP(host), validHost(host)].some(x => x==true)) return ctx.failEmbed("Malformed Address", "Hmm.. It seems that you provided me with a malformed address");
     let msg = await ctx.channel.send({embeds: [new ctx.MessageEmbed().setTitle("Pinging...").toJSON()]})
     Gamedig.query({
@@ -23,12 +26,12 @@ module.exports = class Minecraft extends Command {
       host: host, port: port || undefined
     }).then(async (state) => {
       console.log(state);
-      let statEmbed = new ctx.MessageEmbed()
-        .setTitle(`${host} stats`)
-        .setURL()
-        .addField('Players', `${state.players.length}/${state.maxplayers}`)
-        .addField('IP', state.connect)
-        .addField('Connect', state.connect)
+      const statEmbed = new ctx.MessageEmbed()
+        .setTitle(`${state.name}`)
+        // .setURL()
+        .addField('IP', state.connect, true)
+        .addField('Players', `${state.players.length}/${state.raw.maxplayers}`, true)
+        .addField('Connect', state.connect, true)
         
       msg.edit({embeds: [statEmbed]})
     }).catch((error) => {
@@ -37,13 +40,3 @@ module.exports = class Minecraft extends Command {
     });
   }
 }
-
-/*
-Gamedig.query({
-    type: 'minecraft',
-    host: 'mc.example.com'
-}).then((state) => {
-    console.log(state);
-}).catch((error) => {
-    console.log("Server is offline");
-});*/
