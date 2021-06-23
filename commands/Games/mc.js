@@ -14,8 +14,8 @@ module.exports = class Minecraft extends Command {
   }
 
   async run (ctx) { // eslint-disable-line no-unused-vars
-    const guildData = (await ctx.database.guilds.get({ guildid: ctx.guildid })).minecraft;
-    if(guildData.length == 0) return ctx.failEmbed("Setup Required", `Please ask an administator to setup this command. Using \`${ctx.prefix}config ${this.help.name} IP:PORT\``);
+    const guildData = (await ctx.database.guilds.get({ guildid: ctx.guildid }))?.minecraft;
+    if(!guildData || guildData.length == 0) return ctx.failEmbed("Setup Required", `Please ask an administator to setup this command. Using \`${ctx.prefix}config ${this.help.name} IP:PORT\``);
     if(isNaN(ctx.args[0]) || Number(ctx.args[0]) > 20 || Number(ctx.args[0]) < 1) return ctx.failEmbed("Setup Required", `Please ask an administator to setup this command. Using \`${ctx.prefix}config ${this.help.name} IP:PORT\``);
 
     let host = ctx.args[0], port = ctx.args[1];
