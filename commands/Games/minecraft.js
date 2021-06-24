@@ -45,8 +45,7 @@ module.exports = class Minecraft extends Command {
         .setImage(`http://status.mclive.eu/${host.toProperCase()}/${host}/${port}/banner.png`);
       msg.edit({ embeds: [statEmbed] });
     }).catch((error) => {
-      msg.edit({ embeds: [new ctx.MessageEmbed().setTitle("Server offline...").setColor("RED").toJSON()] });
-      console.log("Server is offline");
+      msg.edit({ embeds: [new ctx.MessageEmbed().setTitle("Error").setDescription('Server is offline or the IP is incorrect.').setColor("RED").toJSON()] });
     });
   }
 };
