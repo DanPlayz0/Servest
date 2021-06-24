@@ -16,16 +16,9 @@ module.exports = class extends Event {
   }
 
   async run(client, message, isEdited = false) {
-    // Get useful properties from the message object
     const { author, channel, content, guild } = message;
-    const database = client.database;
-    // Ignore other bots
-    if (author.bot) return;
-    // Cancel any attempt to execute commands if the bot cannot respond to the user.
-    if (guild && !channel.permissionsFor(message.guild.me).missing("SEND_MESSAGES")) return;
 
-    // Ensure data in databases.
-    // client.users.fetch(author.id);
+    if (author.bot || (guild && !channel.permissionsFor(message.guild.me).missing("SEND_MESSAGES"))) return;
 
     // Prefix related tasks
     const prefix = process.env.DEFAULT_PREFIX; //client.getPrefix(client, message.guild);
@@ -70,7 +63,7 @@ module.exports = class extends Event {
     const cooldownAmount = (cmd.conf.cooldown || 0) * 1000;
     if (timestamps.has(message.author.id)) {
       const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
-  
+
       if (now < expirationTime) {
         const timeLeft = (expirationTime - now) / 1000;
         return message.react('🕐');
@@ -95,10 +88,8 @@ module.exports = class extends Event {
     //this.client.logger.log(`${this.client.config.permLevels.find(l => l.level === level).name} ${message.author.username} (${message.author.id}) ran command ${cmd.help.name} ${args.join(' ')}`, "cmd");
 
     try {
-      // Just incase command is syncronus have a catch for errors
       const params = { args, message, prefix: prefix, query: args.join(" ") };
-      // client, message, args, level, database, MessageEmbed
-      cmd.run(new CommandContext(params));
+      cmd._run(new CommandContext(params));
     } catch (error) {
       console.log(error);
       message.channel
