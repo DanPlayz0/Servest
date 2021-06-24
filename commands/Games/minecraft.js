@@ -24,7 +24,7 @@ module.exports = class Minecraft extends Command {
       let record = guildData[Number(first)-1];
       host = record?.host;
       port = record?.port || 25565;
-      if (!host) return ctx.failEmbed("Not a valid host", `The provided ID for minecraft (ID: ${first}) on this guild has not been setup, to view your setup guilds run...`);
+      if (!host) return ctx.failEmbed("Not a valid host", `The provided ID for minecraft (ID: ${first}) has not been setup. Please ask an administator to set it up. Using \`${ctx.prefix}config ${this.help.name} [1-100] [IP:PORT]\``);
     } else {
       if (!first) return ctx.failEmbed("No Address provided", `You need to provide an address to search for system Status`);
       let address = first.split(":")[0];
@@ -34,17 +34,15 @@ module.exports = class Minecraft extends Command {
     }
     if (![validIP(host), validHost(host)].some((x) => x == true))
       return ctx.failEmbed("Malformed Address", "Hmm.. It seems that you provided me with a malformed address");
-    let msg = await ctx.channel.send({ embeds: [new ctx.MessageEmbed().setTitle("Pinging...").toJSON()] });
+    let msg = await ctx.channel.send({ embeds: [new ctx.MessageEmbed().setColor('BLURPLE').setTitle("<a:loading:660004752104620036> Pinging...").toJSON()] });
     Gamedig.query({ type: "minecraft", host: host, port: port || undefined }).then(async (state) => {
       console.log(state);
       const statEmbed = new ctx.MessageEmbed()
         .setTitle(`${state.name}`)
-        .addField("IP", state.connect, true)
-        .addField("Players", `${state.players.length}/${state.maxplayers}`, true)
-        .addField("Connect", state.connect, true)
+        .addField("IP", `${state.connect.split(':')[0]}${Number(state.connect.split(':')[1]) == 25565 ? '': `:${state.connect.split(':')[1]}`}`, true)
+        .addField("Players", `${state.players.length || 0}/${state.maxplayers}`, true)
         .setColor("GREEN")
         .setImage(`http://status.mclive.eu/${host.toProperCase()}/${host}/${port}/banner.png`);
-
       msg.edit({ embeds: [statEmbed] });
     }).catch((error) => {
       msg.edit({ embeds: [new ctx.MessageEmbed().setTitle("Server offline...").setColor("RED").toJSON()] });
