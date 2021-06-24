@@ -39,13 +39,6 @@ class Reload extends Command {
       //em.setDescription(`The event \`${events.conf.name}\` has been reloaded`).setColor('GREEN')
       em.setDescription(`The events cannot be reloaded yet.`).setColor('RED')
       message.channel.send(em);
-    } else if (args[0] == 'commands') {
-      client.commands = new Collection()
-      client.aliases = new Collection()
-      client.loadCommands('./bot/commands');
-
-      em.setDescription(`Old commands were reloaded, new commands have been loaded.`).setColor('GREEN')
-      message.channel.send({ embeds: [em] });
     } else {
       em.setDescription(`\`${args[0]}\` does not exist, nor is it an alias.`).setColor('RED');
       return message.channel.send({ embeds: [em] });
