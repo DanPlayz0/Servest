@@ -6,7 +6,7 @@ module.exports = class ExecuteCMD extends Command {
   constructor(client) {
     super(client, {
       name: "execute",
-      description: "Execute a console command. (Command Prompt Commands)",
+      description: "Haha terminal go BRRR",
       category: "System",
       usage: "<console command>",
       aliases: ['exec'],

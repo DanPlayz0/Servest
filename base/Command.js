@@ -6,15 +6,17 @@ class Command {
       enabled: options.enabled || true,
       guildOnly: options.guildOnly || false,
       aliases: options.aliases || [],
-      permLevel: options.permLevel || "User",
-      cooldown: (options.cooldown || options.cooldown == 0) ? options.cooldown : 1,
+      botOwner: options.botOwner || false,
+      cooldown: ("cooldown" in options) ? options.cooldown : 1,
       options: options.options || [],
+      botPermissions: options.botPermissions || [],
+      userPermissions: options.userPermissions || []
     };
     this.help = { 
       name: options.name || 'None',
       description: options.description || "No description provided.",
       category: options.category || "Uncategorized",
-      usage: (options.usage || options.usage == "") ? options.usage : "No usage provided."
+      usage: ("usage" in options) ? options.usage : "No usage provided."
     };
   }
 
@@ -26,7 +28,8 @@ class Command {
     try {
       await this.run(ctx);
     } catch (err) {
-      ctx.client.logger.log(err.message, 'error');
+      console.error(err);
+      ctx.channel.send({embeds: [new ctx.MessageEmbed().setTitle('Oops').setColor(ctx.client.color.error).setDescription(`The error that occured has been logged into our systems. If this is repeative, report it to DanPlayz#7757 at <${process.env.SUPPORT_INVITE}>.\n\`\`\`js\n${err.stack}\`\`\``)]})
     }
   }
 }

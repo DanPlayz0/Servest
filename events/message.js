@@ -2,7 +2,7 @@
 // Note that due to the binding of client to every event, every event
 // goes `client, other, args` when this function is run.
 const { escapeRegExp } = require("@structures/Utils");
-const { MessageEmbed, Collection } = require("discord.js");
+const Discord = require("discord.js");
 const Event = require("@base/Event.js");
 const moment = require("moment");
 const CommandContext = require("@base/CommandContext");
@@ -56,7 +56,7 @@ module.exports = class extends Event {
     // Command Cooldown System
     let cooldowns = client.cooldowns;
     if (!cooldowns.has(cmd.help.name)) {
-      cooldowns.set(cmd.help.name, new Collection());
+      cooldowns.set(cmd.help.name, new Discord.Collection());
     }
     const now = Date.now();
     const timestamps = cooldowns.get(cmd.help.name);
@@ -72,18 +72,39 @@ module.exports = class extends Event {
     }
     timestamps.set(message.author.id, now);
     setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
-
-    // Bot Permission Lock
+    
+    // Owner Lock
     if (cmd.conf.botOwner == true && !process.env.OWNERS.split(" ").includes(message.author.id)) {
-      const e = new MessageEmbed()
+      const e = new Discord.MessageEmbed()
         .setTitle("Unauthorized")
         .setColor("RED")
         .setDescription(`You have to be ${process.env.OWNERS.split(" ").length == 1 ? "the" : "a"} **Bot Owner** to use this command.`);
-      message.channel.send(e);
+      message.channel.send({embeds: [e], attachments: [new Discord.MessageAttachment("https://shanara.nyc3.digitaloceanspaces.com/376901199225552898/uCo7cqbOLp5yZtJx9IKmv5SPP.mp4", "HaHaFucyou.mp4")]});
       client.logger.log(`${message.author.username} (${message.author.id}) ran unauthorized command ${cmd.help.name} ${args.join(" ")}`, "unauthorized");
       return;
     }
+    
+    // User Perms
+    if(cmd.conf.userPermissions.length > 0 && cmd.conf.userPermissions.every(perm => message.member.permissions.has(Discord.Permissions.FLAGS[perm]) === false)) {
+      const e = new Discord.MessageEmbed()
+      .setTitle('Missing User Permissions')
+      .setColor('RED')
+      .setDescription(`You are missing \`${cmd.conf.userPermissions.filter(p => !message.member.permissions.has(Discord.Permissions.FLAGS[p])).join(", ").toUpperCase()}\` to run this command`);
+      message.channel.send(e);
+      return;
+    }
+    
+    // Bot Perm
+    if(cmd.conf.botPermissions.length > 0 && cmd.conf.botPermissions.every(perm => message.guild.me.permissions.has(Discord.Permissions.FLAGS[perm]) === false)) {
+      const e = new Discord.MessageEmbed()
+      .setTitle('Missing Bot Permissions')
+      .setColor('RED')
+      .setDescription(`I am missing \`${cmd.conf.botPermissions.filter(p => !message.guild.me.permissions.has(Discord.Permissions.FLAGS[p])).join(", ").toUpperCase()}\` to run this command.`);
+      message.channel.send(e);
+      return;
+    }
 
+    
     // If the command exists, **AND** the user has permission, run it.
     //this.client.logger.log(`${this.client.config.permLevels.find(l => l.level === level).name} ${message.author.username} (${message.author.id}) ran command ${cmd.help.name} ${args.join(' ')}`, "cmd");
 

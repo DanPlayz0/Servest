@@ -10,6 +10,7 @@ class DiscordBot extends Client {
     // this.config = require("@root/config.js");
     this.logger = require('@structures/Logger.js');
     this.database = new (require('@database/Database.js'))(this);
+    this.redis = new (require('ioredis'))(`redis://${process.env.REDIS_HOST}:${process.env.REDIS_PORT}`);
 
     // Create the Collections
     this.commands = new Collection();

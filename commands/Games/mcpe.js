@@ -3,14 +3,14 @@ const GameCommand = require("@base/GameCommand.js");
 module.exports = class Minecraft extends GameCommand {
   constructor(client) {
     super(client, {
-      name: "minecraft",
-      description: "Gets info about a minecraft server.",
+      name: "mcpe",
+      description: "Gets info about a minecraft bedrock server.",
       category: "Games",
       usage: "",
-      aliases: ["mc", "mcip"],
+      aliases: ["minecraftpe"],
 
-      game: "minecraft",
-      defaultport: 25565
+      game: "minecraftpe",
+      defaultport: 19132
     });
   }
 

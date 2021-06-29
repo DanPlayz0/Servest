@@ -3,12 +3,15 @@ const mongoose = require("mongoose");
 const guildSchema = new mongoose.Schema({
   guildid: String,
   hosts: {
-    minecraft: Array, // !mc 1 - {ip:port} !mc 2 {ip:port}
     csgo: Array,
-    cs16: Array,
-    garrysmod: Array,
     fivem: Array,
+    gmod: Array,
+    minecraft: Array,
+    r6: Array,
     rust: Array,
+    tf2: Array,
+    unturned: Array,
+    valheim: Array,
   }
 });
 

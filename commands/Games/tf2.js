@@ -3,14 +3,14 @@ const GameCommand = require("@base/GameCommand.js");
 module.exports = class Minecraft extends GameCommand {
   constructor(client) {
     super(client, {
-      name: "minecraft",
-      description: "Gets info about a minecraft server.",
+      name: "tf2",
+      description: "Gets info about a Team Fortress 2 server.",
       category: "Games",
       usage: "",
-      aliases: ["mc", "mcip"],
+      aliases: ["teamfortress"],
 
-      game: "minecraft",
-      defaultport: 25565
+      game: "tf2",
+      defaultport: 27015
     });
   }
 
@@ -20,7 +20,6 @@ module.exports = class Minecraft extends GameCommand {
       .addField("IP", `${state.connect.split(':')[0]}${Number(state.connect.split(':')[1]) == opts.defaultport ? '': `:${state.connect.split(':')[1]}`}`, true)
       .addField("Players", `${state.players.length || 0}/${state.maxplayers}`, true)
       .setColor("GREEN")
-      .setImage(`http://status.mclive.eu/${opts.host.toProperCase()}/${opts.host}/${opts.port}/banner.png`);
     return statEmbed;
   }
 };

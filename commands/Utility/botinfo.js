@@ -31,7 +31,7 @@ module.exports = class BotInfo extends Command {
   
     const e = new ctx.MessageEmbed()
       .setTitle('Bot Info')
-      .setColor('BLUE')
+      .setColor('BLURPLE')
       //.addField('Mem Usage', `${(process.memoryUsage().heapUsed / 1024 / 1024).toFixed(2)} MB`, true)
       .addField('Uptime', duration, true)
       .addField('User Count', `${ctx.client.users.cache.size.toLocaleString()} users`, true)

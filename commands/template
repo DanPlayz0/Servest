@@ -1,19 +1,19 @@
 const Command = require("@base/Command.js");
 
 class TemplateCMD extends Command {
-    constructor (client) {
-      super(client, {
-        name: "",
-        description: "",
-        category: "Misc",
-        usage: "",
-        aliases: [],
-      });
-    }
+  constructor(client) {
+    super(client, {
+      name: "",
+      description: "",
+      category: "Misc",
+      usage: "",
+      aliases: [],
+    });
+  }
 
-    async run (ctx) {
+  async run(ctx) {
 
-    }
+  }
 }
 
 module.exports = TemplateCMD;

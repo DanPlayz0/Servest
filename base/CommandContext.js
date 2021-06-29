@@ -36,8 +36,9 @@ class CommandContext {
     this.author = options.message.author;
     this.channel = options.message.channel;
     this.client = options.message.client;
-    this.voiceChannel =
-      this.member && this.member.voice && this.member.voice.channel;
+    this.voiceChannel = this.member && this.member.voice && this.member.voice.channel;
+    
+    this.redis = this.client.redis;
 
     this.level = options.level;
     this.prefix = options.prefix;
