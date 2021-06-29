@@ -6,7 +6,7 @@
     "chalk": "^4.1.1",
     "cookie-parser": "^1.4.5",
     "cors": "^2.8.5",
-    "discord.js": "^13.0.0-dev.fdad14099779e61cb84dcd1cb2497e0e853a6144",
+    "discord.js": "^13.0.0-dev.edab5af.1624996138",
     "dotenv": "^10.0.0",
     "express": "^4.17.1",
     "gamedig": "^3.0.5",
