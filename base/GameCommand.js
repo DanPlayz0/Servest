@@ -18,7 +18,7 @@ module.exports = class GameCommand extends Command {
       let guildData = await ctx.redis.get(`SERVBOT:GUILD_${ctx.guild.id}`)
       if (!guildData) {
         guildData = (await ctx.database.guilds.getOne({ guildid: ctx.guild.id }));
-        await ctx.redis.setex(`SERVBOT:${ctx.guild.id}`, 60 * 60 * 5, JSON.stringify(guildData));
+        await ctx.redis.setex(`SERVBOT:${ctx.guild.id}`, 60 * 60, JSON.stringify(guildData));
         guildData = guildData.hosts[this.game];
       } else guildData = JSON.parse(guildData);
       if (!guildData || guildData.length == 0) return ctx.failEmbed("Setup Required", `Please ask an administator to setup this command. Using \`${ctx.prefix}config ${this.help.name} [1-100] [IP:PORT]\``);

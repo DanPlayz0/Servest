@@ -37,6 +37,9 @@ module.exports = class BotInfo extends Command {
     
     await ctx.database.guilds.update({ guildid: ctx.guild.id }, obj);
 
+    guildData = (await ctx.database.guilds.getOne({ guildid: ctx.guild.id }));
+    await ctx.redis.setex(`SERVBOT:${ctx.guild.id}`, 60 * 60, JSON.stringify(guildData));
+
     ctx.channel.send({embeds: [new ctx.MessageEmbed().setColor('GREEN').setTitle(`Updated \`${option.toProperCase()}\` config`).setDescription(`${obj.hosts[option].sort((a,b) => a.id - b.id).map(d => `**${d.id}** | ${d.host}${d.port == defaultPort ? "" : `:${d.port}`}`).join('\n')}`)]});
   }
 };
