@@ -15,11 +15,17 @@ module.exports = class Minecraft extends GameCommand {
   }
 
   async embed(ctx, state, opts) {
-    const statEmbed = new ctx.MessageEmbed()
+    const first = new ctx.MessageEmbed()
+      .setAuthor(`Ping: ${state.ping}ms`)
       .setTitle(`${state.name}`)
       .addField("IP", `${state.connect.split(':')[0]}${Number(state.connect.split(':')[1]) == opts.defaultport ? '': `:${state.connect.split(':')[1]}`}`, true)
       .addField("Players", `${state.players.length || 0}/${state.maxplayers}`, true)
       .setColor("GREEN")
-    return statEmbed;
+    const second = new ctx.MessageEmbed()
+      .setAuthor(`Ping: ${state.ping}ms`)
+      .setTitle(`${state.name}`)
+      .addField("Map", `${state.map}`, true)
+      .setColor("GREEN")
+    return [first, second];
   }
 };

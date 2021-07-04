@@ -15,12 +15,14 @@ module.exports = class Minecraft extends GameCommand {
   }
 
   async embed(ctx, state, opts) {
-    const statEmbed = new ctx.MessageEmbed()
+    console.log()
+    const first = new ctx.MessageEmbed()
+      .setAuthor(`Ping: ${state.ping}ms`)
       .setTitle(`${state.name}`)
       .addField("IP", `${state.connect.split(':')[0]}${Number(state.connect.split(':')[1]) == opts.defaultport ? '': `:${state.connect.split(':')[1]}`}`, true)
-      .addField("Players", `${state.players.length || 0}/${state.maxplayers}`, true)
+      .addField("Players", `${state.raw.vanilla.raw.players.online}/${state.raw.vanilla.raw.players.max}`, true)
       .setColor("GREEN")
       .setImage(`http://status.mclive.eu/${opts.host.toProperCase()}/${opts.host}/${opts.port}/banner.png`);
-    return statEmbed;
+    return [first];
   }
 };

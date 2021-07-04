@@ -7,20 +7,21 @@ module.exports = class Minecraft extends GameCommand {
       description: "Gets info about a minecraft bedrock server.",
       category: "Games",
       usage: "",
-      aliases: ["minecraftpe"],
+      aliases: ["minecraftpe", "minecraftbe", "mcbe", "minecraftbedrock", "mcbedrock"],
 
-      game: "minecraftpe",
+      game: "minecraftbe",
       defaultport: 19132
     });
   }
 
   async embed(ctx, state, opts) {
     const statEmbed = new ctx.MessageEmbed()
+      .setAuthor(`Ping: ${state.ping}ms`)
       .setTitle(`${state.name}`)
       .addField("IP", `${state.connect.split(':')[0]}${Number(state.connect.split(':')[1]) == opts.defaultport ? '': `:${state.connect.split(':')[1]}`}`, true)
       .addField("Players", `${state.players.length || 0}/${state.maxplayers}`, true)
       .setColor("GREEN")
-      .setImage(`http://status.mclive.eu/${opts.host.toProperCase()}/${opts.host}/${opts.port}/banner.png`);
-    return statEmbed;
+      // .setImage(`http://status.mclive.eu/${opts.host.toProperCase()}/${opts.host}/${opts.port}/banner.png`);
+    return [statEmbed];
   }
 };
