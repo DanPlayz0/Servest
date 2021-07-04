@@ -11,8 +11,6 @@ module.exports = class extends Event {
   }
 
   async run (client) {
-
-    // NOTE: client.wait is added by ./modules/functions.js!
     await client.wait(1000);
 
     // Setup MongoDB connection.
@@ -26,6 +24,7 @@ module.exports = class extends Event {
       client.site = new (require("@website/index.js"))(client);
       client.site.listen(process.env.WEB_PORT);
     }
+    // client.dynamics.startup();
 
     async function setupInit() {
       // Set the game as the "Playing with servers | {prefix}help"

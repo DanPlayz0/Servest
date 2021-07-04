@@ -22,8 +22,13 @@ module.exports = class extends Event {
 
     // Prefix related tasks
     const prefix = process.env.DEFAULT_PREFIX; //client.getPrefix(client, message.guild);
+    let guildDb = await client.redis.get(`SERVBOT:SETTINGS_${message.guild.id}`)
+    if (!guildDb) {
+      guildDb = await client.database.guilds.getOne({ guildid: message.guild.id });
+      if(guildDb) client.redis.setex(`SERVBOT:SETTINGS_${message.guild.id}`, 60 * 60, JSON.stringify(guildDb));
+    } else guildDb = JSON.parse(guildDb);
 
-    const fixedPrefix = escapeRegExp(prefix);
+    const fixedPrefix = escapeRegExp(guildDb?.prefix || prefix);
     const fixedUsername = escapeRegExp(client.user.username);
     const PrefixRegex = new RegExp(`^(<@!?${client.user.id}>|${fixedUsername}|${fixedPrefix})`, "i", "(s+)?");
 
@@ -90,7 +95,7 @@ module.exports = class extends Event {
       .setTitle('Missing User Permissions')
       .setColor('RED')
       .setDescription(`You are missing \`${cmd.conf.userPermissions.filter(p => !message.member.permissions.has(Discord.Permissions.FLAGS[p])).join(", ").toUpperCase()}\` to run this command`);
-      message.channel.send(e);
+      message.channel.send({embeds: [e]});
       return;
     }
     
@@ -100,16 +105,14 @@ module.exports = class extends Event {
       .setTitle('Missing Bot Permissions')
       .setColor('RED')
       .setDescription(`I am missing \`${cmd.conf.botPermissions.filter(p => !message.guild.me.permissions.has(Discord.Permissions.FLAGS[p])).join(", ").toUpperCase()}\` to run this command.`);
-      message.channel.send(e);
+      message.channel.send({embeds: [e]});
       return;
     }
-
     
     // If the command exists, **AND** the user has permission, run it.
     //this.client.logger.log(`${this.client.config.permLevels.find(l => l.level === level).name} ${message.author.username} (${message.author.id}) ran command ${cmd.help.name} ${args.join(' ')}`, "cmd");
-
     try {
-      const params = { args, message, prefix: prefix, query: args.join(" ") };
+      const params = { args, message, prefix: prefix, query: args.join(" "), guildDb };
       cmd._run(new CommandContext(params));
     } catch (error) {
       console.log(error);

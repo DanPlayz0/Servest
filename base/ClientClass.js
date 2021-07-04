@@ -17,6 +17,7 @@ class DiscordBot extends Client {
     this.aliases = new Collection();
     this.events = new Collection();
     this.cooldowns = new Collection();
+    this.dynamics = new (require('@utils/dynamics.js'))(this);
     
     this.color = {
       primary: '#dfbbed'
@@ -173,28 +174,6 @@ class DiscordBot extends Client {
 
     delete require.cache[require.resolve(path.resolve(evtPath, event.conf.fileName))];
     return false;
-  }
-
-  reloadEvent(evtPath, evtName) {
-    try {
-      const props = new (require(path.resolve(evtPath, evtName)))(this);
-
-      if (props.conf.enabled === false) return;
-
-      props.conf.location = evtPath;
-      props.conf.fileName = evtName;
-
-      if (props.init) {
-        props.init(this);
-      }
-
-      this.events.set(props.conf.name, props);
-
-      if (this.DEBUG === true) this.logger.log(`${evtName} Loaded`, 'debug');
-      return false;
-    } catch (error) {
-      return `Unable to load event ${evtName}: ${error.message}`;
-    }
   }
 }
 

@@ -2,6 +2,8 @@ const mongoose = require("mongoose");
 
 const guildSchema = new mongoose.Schema({
   guildid: String,
+  prefix: String,
+  channels: Array,
   hosts: {
     csgo: Array,
     fivem: Array,
