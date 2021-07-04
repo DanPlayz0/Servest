@@ -38,16 +38,20 @@ module.exports = class GameCommand extends Command {
     if (res) {
       res = JSON.parse(res);
       let e = await this.embed(ctx, res.state, { game: this.game, defaultport: this.defaultport, host, port });
-      e.setFooter('This data was cached at').setTimestamp(res.cached)
-      return ctx.channel.send({embeds: [e]})
+      if(Array.isArray(e)) e.map(embed => embed.setFooter('This data was cached').setTimestamp(res.cached));
+      else e.setFooter('This data was cached at').setTimestamp(res.cached);
+      return ctx.pagination(e);
     }
     let msg = await ctx.channel.send({ embeds: [new ctx.MessageEmbed().setColor('BLURPLE').setTitle("<a:loading:660004752104620036> Pinging...").toJSON()] });
     Gamedig.query({ type: this.game, host, port: port || undefined }).then(async (state) => {
       const em = await this.embed(ctx, state, { game: this.game, defaultport: this.defaultport, host, port })
-      em.setFooter('This data is live, and will be cached for 5 minutes.')
-      msg.edit({ embeds: [em] });
+      if(Array.isArray(em)) em.map(embed => embed.setFooter('This data is live, and will be cached for 5 minutes.'));
+      else em.setFooter('This data is live, and will be cached for 5 minutes.');
+      ctx.pagination(em, {message: msg});
       await ctx.redis.setex(`SERVBOT:${this.game}_${host}-${port||'none'}`, 60 * 5, JSON.stringify({ state, cached: new Date().toISOString() }));
     }).catch((error) => {
+      
+      console.error(error);
       msg.edit({ embeds: [new ctx.MessageEmbed().setTitle("Error").setDescription('Server is offline or the IP is incorrect.').setColor("RED").toJSON()] });
     });
   }

@@ -63,6 +63,95 @@ class CommandContext {
     return await this.channel.send({embeds: [val] });
   }
 
+  async pagination(embeds, options = {}) {
+    if(typeof embeds !== 'object') throw TypeError('embeds must be typeof Object');
+    if(!Array.isArray(embeds)) embeds = [embeds];
+
+    let pages = embeds.length, currentPage = (options && options.currentPage) || 0;
+    embeds.map((embed, i) => embed.setFooter(`Requested by ${this.message.author.username} • Page ${i+1} of ${pages}\n${embed.footer.text}`));
+
+    let selectMenu = [];
+    embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, value: `page_${i}`, default: i == 0 }))
+    
+    const buttons = [
+      {
+        type: 1,
+        components: [
+          { type: 3, custom_id: "pagination_pageselect", options: selectMenu, placeholder: "Choose a page", min_values: 1, max_values: 1, disabled: pages == 1 }
+        ]
+      },
+      {
+        type: 1,
+        components: [
+          { style: 1, type: 2, label: '◀', custom_id: 'pagination_prev', disabled: pages == 1 },
+          { style: 4, type: 2, label: '🛑', custom_id: 'pagination_stop' },
+          { style: 1, type: 2, label: '▶', custom_id: 'pagination_next', disabled: pages == 1 },
+          { style: 4, type: 2, label: '❌', custom_id: 'pagination_delete' },
+        ]
+      },
+      
+    ];
+
+    let msg;
+    if(options.message) msg = await options.message.edit({embeds: [embeds[currentPage]], components: buttons});
+    else msg = await this.message.channel.send({embeds: [embeds[currentPage]], components: buttons});
+
+    const filter = (interaction) => interaction.customID.startsWith('pagination_') && interaction.user.id === this.message.author.id;
+    const collector = msg.createMessageComponentInteractionCollector({ filter, time: 15000 });
+
+    collector.on('end',()=>{
+      buttons.map(row => row.components.map(btn => btn.disabled = true));
+      msg.edit({embeds: [embeds[currentPage]], components: buttons});
+    });
+    collector.on("collect", async (button) => {
+      collector.resetTimer();
+      button.deferUpdate();
+
+      function updateSelectMenu(cPage) {
+        selectMenu = [];
+        embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, value: `page_${i}`, default: i == cPage }));
+        buttons.find(row => row.components.find(item => item.type == 3)).components.find(item => item.type == 3).options = selectMenu;
+      }
+
+      try {
+        switch (button.customID) {
+          case "pagination_pageselect":
+            currentPage = Number(button.values[0].slice('page_'.length));
+            updateSelectMenu(currentPage);
+            msg.edit({embeds: [embeds[currentPage]], components: buttons});
+            break;
+          case "pagination_prev":
+            currentPage++;
+            if(currentPage == pages) currentPage = 0;
+            updateSelectMenu(currentPage);
+            msg.edit({embeds: [embeds[currentPage]], components: buttons});
+            break;
+          case "pagination_stop":
+            collector.stop();
+            buttons.map(row => row.components.map(btn => btn.disabled = true));
+            msg.edit({embeds: [embeds[currentPage]], components: buttons})
+            break;
+          case "pagination_next":
+            --currentPage;
+            if(currentPage == -1) currentPage = pages-1;
+            updateSelectMenu(currentPage);
+            msg.edit({embeds: [embeds[currentPage]], components: buttons});
+            break;
+          case "pagination_delete":
+            collector.stop();
+            msg.delete();
+            break;
+        }
+      } catch (err) {
+        console.log(err.message);
+      }
+    });
+
+    //collector.on("end", ())//
+
+    return msg;
+  }
+
   async pagify(embeds, options) {
     let reactions = ["◀️", "⏹️", "▶️"];
     if(embeds.length == 1) reactions = ["⏹️"]
