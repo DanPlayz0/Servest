@@ -68,10 +68,11 @@ class CommandContext {
     if(!Array.isArray(embeds)) embeds = [embeds];
 
     let pages = embeds.length, currentPage = (options && options.currentPage) || 0;
-    embeds.map((embed, i) => embed.setFooter(`Requested by ${this.message.author.username} • Page ${i+1} of ${pages}\n${embed.footer.text}`));
+    embeds.map((embed, i) => embed.setFooter(`Requested by ${this.message.author.username} • Page ${i+1} of ${pages}${embed?.footer?.text ? `\n${embed.footer.text}` : ''}`));
 
     let selectMenu = [];
-    embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, value: `page_${i}`, default: i == 0 }))
+    embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, value: `page_${i}`, default: i == 0 }));
+    selectMenu=selectMenu.slice(0,25)
     
     const buttons = [
       {
@@ -110,44 +111,43 @@ class CommandContext {
       function updateSelectMenu(cPage) {
         selectMenu = [];
         embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, value: `page_${i}`, default: i == cPage }));
+        selectMenu = selectMenu.slice(0,25);
         buttons.find(row => row.components.find(item => item.type == 3)).components.find(item => item.type == 3).options = selectMenu;
       }
 
       try {
         switch (button.customID) {
-          case "pagination_pageselect":
+          case "pagination_pageselect": {
             currentPage = Number(button.values[0].slice('page_'.length));
             updateSelectMenu(currentPage);
             msg.edit({embeds: [embeds[currentPage]], components: buttons});
-            break;
-          case "pagination_prev":
+          } break;
+          case "pagination_next": {
             currentPage++;
             if(currentPage == pages) currentPage = 0;
             updateSelectMenu(currentPage);
             msg.edit({embeds: [embeds[currentPage]], components: buttons});
-            break;
-          case "pagination_stop":
+          } break;
+          case "pagination_stop": {
             collector.stop();
             buttons.map(row => row.components.map(btn => btn.disabled = true));
             msg.edit({embeds: [embeds[currentPage]], components: buttons})
-            break;
-          case "pagination_next":
+          } break;
+          case "pagination_prev": {
             --currentPage;
             if(currentPage == -1) currentPage = pages-1;
             updateSelectMenu(currentPage);
             msg.edit({embeds: [embeds[currentPage]], components: buttons});
-            break;
-          case "pagination_delete":
+          } break;
+          case "pagination_delete": {
             collector.stop();
             msg.delete();
-            break;
+          } break;
         }
       } catch (err) {
         console.log(err.message);
       }
     });
-
-    //collector.on("end", ())//
 
     return msg;
   }
