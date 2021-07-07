@@ -67,11 +67,11 @@ class CommandContext {
     if(typeof embeds !== 'object') throw TypeError('embeds must be typeof Object');
     if(!Array.isArray(embeds)) embeds = [embeds];
 
-    let pages = embeds.length, currentPage = (options && options.currentPage) || 0;
+    let pages = embeds.length, currentPage = (options && options.currentPage) || 0, descriptions = (options && options.descriptions) || [];
     embeds.map((embed, i) => embed.setFooter(`Requested by ${this.message.author.username} • Page ${i+1} of ${pages}${embed?.footer?.text ? `\n${embed.footer.text}` : ''}`));
 
     let selectMenu = [];
-    embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, value: `page_${i}`, default: i == 0 }));
+    embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, description: descriptions.length >= i ? descriptions[i] : undefined, value: `page_${i}`, default: i == 0 }));
     selectMenu=selectMenu.slice(0,25)
     
     const buttons = [
@@ -84,10 +84,10 @@ class CommandContext {
       {
         type: 1,
         components: [
-          { style: 1, type: 2, label: '◀', custom_id: 'pagination_prev', disabled: pages == 1 },
-          { style: 4, type: 2, label: '🛑', custom_id: 'pagination_stop' },
-          { style: 1, type: 2, label: '▶', custom_id: 'pagination_next', disabled: pages == 1 },
-          { style: 4, type: 2, label: '❌', custom_id: 'pagination_delete' },
+          { style: 1, type: 2, emoji:{name:undefined,id:'849472262868697119'}, custom_id: 'pagination_prev', disabled: pages == 1 },
+          { style: 4, type: 2, emoji:{name:undefined,id:'849472262884556842'}, custom_id: 'pagination_stop' },
+          { style: 1, type: 2, emoji:{name:undefined,id:'849472263190740992'}, custom_id: 'pagination_next', disabled: pages == 1 },
+          { style: 4, type: 2, emoji:{name:undefined,id:'848216792845516861'}, custom_id: 'pagination_delete' },
         ]
       },
       
@@ -100,7 +100,8 @@ class CommandContext {
     const filter = (interaction) => interaction.customID.startsWith('pagination_') && interaction.user.id === this.message.author.id;
     const collector = msg.createMessageComponentInteractionCollector({ filter, time: 15000 });
 
-    collector.on('end',()=>{
+    collector.on('end', (__,action)=>{
+      if(action == 'trash') return;
       buttons.map(row => row.components.map(btn => btn.disabled = true));
       msg.edit({embeds: [embeds[currentPage]], components: buttons});
     });
@@ -110,8 +111,8 @@ class CommandContext {
 
       function updateSelectMenu(cPage) {
         selectMenu = [];
-        embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, value: `page_${i}`, default: i == cPage }));
-        selectMenu = selectMenu.slice(0,25);
+        embeds.map((_a,i) => selectMenu.push({ label: `Page ${i+1}`, description: descriptions.length >= i ? descriptions[i] : undefined, value: `page_${i}`, default: i == cPage }));
+        selectMenu=selectMenu.slice(0,25)
         buttons.find(row => row.components.find(item => item.type == 3)).components.find(item => item.type == 3).options = selectMenu;
       }
 
@@ -140,7 +141,7 @@ class CommandContext {
             msg.edit({embeds: [embeds[currentPage]], components: buttons});
           } break;
           case "pagination_delete": {
-            collector.stop();
+            collector.stop('trash');
             msg.delete();
           } break;
         }
